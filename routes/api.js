@@ -37,6 +37,21 @@ module.exports = function (app) {
 
     .post(function (req, res) {
       let project = req.params.project;
+
+      const newIssue = new Issue({
+        issue_title: req.body.issue_title,
+        issue_text: req.body.issue_text,
+        created_by: req.body.created_by,
+        assigned_to: req.body.assigned_to,
+        status_text: req.body.status_text,
+        project: project,
+      });
+      newIssue.save((err, issue) => {
+        if (err) {
+          return res.status(400).json({ error: "Error creating issue" });
+        }
+        res.status(201).json(issue);
+      });
     })
 
     .put(function (req, res) {
