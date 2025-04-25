@@ -32,11 +32,24 @@ module.exports = function (app) {
     .route("/api/issues/:project")
 
     .get(function (req, res) {
-      let project = req.params.project;
+      const project = req.params.project;
+      const filter = req.query;
+
+      Issue.find({ project: project, ...filter })
+        .then((issues) => {
+          if (issues.length === 0) {
+            return res.status(204).json("No issues found");
+          }
+          res.json(issues);
+        })
+        .catch((error) => {
+          console.error("Error retrieving issues:", error);
+          res.status(500).json({ error: "Internal server error" });
+        });
     })
 
     .post(async function (req, res) {
-      let project = req.params.project;
+      const project = req.params.project;
 
       if (!req.body.issue_title || !req.body.issue_text || !req.body.created_by) {
         return res.status(400).json({ error: "required field(s) missing" });
@@ -59,10 +72,10 @@ module.exports = function (app) {
     })
 
     .put(function (req, res) {
-      let project = req.params.project;
+      const project = req.params.project;
     })
 
     .delete(function (req, res) {
-      let project = req.params.project;
+      const project = req.params.project;
     });
 };

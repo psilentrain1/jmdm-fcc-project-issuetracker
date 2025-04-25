@@ -61,7 +61,16 @@ suite("Functional Tests", function () {
         done();
       });
   });
-  //   test("View issues on a project: GET request to /api/issues/{project}", function (done) {});
+  test("View issues on a project: GET request to /api/issues/{project}", function (done) {
+    chai
+      .request(server)
+      .get("/api/issues/testproject")
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.isArray(res.body);
+        done();
+      });
+  });
   //   test("View issues on a project with one filter: GET request to /api/issues/{project}", function (done) {});
   //   test("View issues on a project with multiple filters: GET request to /api/issues/{project}", function (done) {});
   //   test("Update one field on an issue: PUT request to /api/issues/{project}", function (done) {});
