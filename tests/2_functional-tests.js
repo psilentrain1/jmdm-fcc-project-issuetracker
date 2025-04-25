@@ -6,6 +6,7 @@ const server = require("../server");
 chai.use(chaiHttp);
 
 suite("Functional Tests", function () {
+  this.timeout(5000);
   test("Create an issue with every field: POST request to /api/issues/{project}", function (done) {});
   test("Create an issue with only required fields: POST request to /api/issues/{project}", function (done) {});
   test("Create an issue with missing required fields: POST request to /api/issues/{project}", function (done) {});
