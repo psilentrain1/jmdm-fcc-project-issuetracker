@@ -35,7 +35,7 @@ module.exports = function (app) {
       let project = req.params.project;
     })
 
-    .post(function (req, res) {
+    .post(async function (req, res) {
       let project = req.params.project;
 
       const newIssue = new Issue({
@@ -46,12 +46,12 @@ module.exports = function (app) {
         status_text: req.body.status_text,
         project: project,
       });
-      newIssue.save((err, issue) => {
-        if (err) {
-          return res.status(400).json({ error: "Error creating issue" });
-        }
-        res.status(201).json(issue);
-      });
+      try {
+        const savedIssue = await newIssue.save();
+        res.status(201).json(savedIssue);
+      } catch (error) {
+        res.status(400).json({ error: "Error saving issue" });
+      }
     })
 
     .put(function (req, res) {
