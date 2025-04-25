@@ -12,9 +12,9 @@ suite("Functional Tests", function () {
       .request(server)
       .post("/api/issues/testproject")
       .send({
-        issue_title: "Test issue",
-        issue_text: "Testing issue text",
-        created_by: "Test user",
+        issue_title: "#1 - Test issue",
+        issue_text: "#1 - Testing issue text",
+        created_by: "Test user 1",
         assigned_to: "Another tester",
         status_text: "Testing status",
         open: true,
@@ -27,8 +27,40 @@ suite("Functional Tests", function () {
         done();
       });
   });
-  //   test("Create an issue with only required fields: POST request to /api/issues/{project}", function (done) {});
-  //   test("Create an issue with missing required fields: POST request to /api/issues/{project}", function (done) {});
+  test("Create an issue with only required fields: POST request to /api/issues/{project}", function (done) {
+    chai
+      .request(server)
+      .post("/api/issues/testproject")
+      .send({
+        issue_title: "#2 - Test issue",
+        issue_text: "#2 - Testing issue text",
+        created_by: "Test user",
+        project: "testproject",
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 201);
+        done();
+      });
+  });
+  test("Create an issue with missing required fields: POST request to /api/issues/{project}", function (done) {
+    chai
+      .request(server)
+      .post("/api/issues/testproject")
+      .send({
+        issue_title: "#3 - Test issue",
+        assigned_to: "Another tester",
+        status_text: "Testing status",
+        open: true,
+        created_on: new Date(),
+        updated_on: new Date(),
+        project: "testproject",
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 400);
+        assert.equal(res.body.error, "Error saving issue");
+        done();
+      });
+  });
   //   test("View issues on a project: GET request to /api/issues/{project}", function (done) {});
   //   test("View issues on a project with one filter: GET request to /api/issues/{project}", function (done) {});
   //   test("View issues on a project with multiple filters: GET request to /api/issues/{project}", function (done) {});
