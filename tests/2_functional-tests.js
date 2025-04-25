@@ -57,7 +57,7 @@ suite("Functional Tests", function () {
       })
       .end(function (err, res) {
         assert.equal(res.status, 400);
-        assert.equal(res.body.error, "Error saving issue");
+        assert.equal(res.body.error, "required field(s) missing");
         done();
       });
   });
