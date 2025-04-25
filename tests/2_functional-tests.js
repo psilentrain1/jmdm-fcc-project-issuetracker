@@ -71,8 +71,28 @@ suite("Functional Tests", function () {
         done();
       });
   });
-  //   test("View issues on a project with one filter: GET request to /api/issues/{project}", function (done) {});
-  //   test("View issues on a project with multiple filters: GET request to /api/issues/{project}", function (done) {});
+  test("View issues on a project with one filter: GET request to /api/issues/{project}", function (done) {
+    chai
+      .request(server)
+      .get("/api/issues/testproject")
+      .query({ open: true })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.isArray(res.body);
+        done();
+      });
+  });
+  test("View issues on a project with multiple filters: GET request to /api/issues/{project}", function (done) {
+    chai
+      .request(server)
+      .get("/api/issues/testproject")
+      .query({ open: true, assigned_to: "Another tester" })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.isArray(res.body);
+        done();
+      });
+  });
   //   test("Update one field on an issue: PUT request to /api/issues/{project}", function (done) {});
   //   test("Update multiple fields on an issue: PUT request to /api/issues/{project}", function (done) {});
   //   test("Update an issue with missing _id: PUT request to /api/issues/{project}", function (done) {});
