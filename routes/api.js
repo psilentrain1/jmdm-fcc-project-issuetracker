@@ -73,6 +73,27 @@ module.exports = function (app) {
 
     .put(function (req, res) {
       const project = req.params.project;
+
+      Issue.findById(req.body._id, async function (err, issue) {
+        if (err) {
+          return res.status(500).json({ error: `Error finding issue: ${err}` });
+        }
+        if (!issue) {
+          return res.status(404).json({ error: "Issue not found" });
+        }
+        req.body.issue_title && (issue.issue_title = req.body.issue_title);
+        req.body.issue_text && (issue.issue_text = req.body.issue_text);
+        req.body.created_by && (issue.created_by = req.body.created_by);
+        req.body.assigned_to && (issue.assigned_to = req.body.assigned_to);
+        req.body.status_text && (issue.status_text = req.body.status_text);
+        issue.updated_on = new Date();
+        try {
+          const updatedIssue = await issue.save();
+          res.status(200).json({ result: "successfully updated", _id: updatedIssue._id });
+        } catch (error) {
+          res.status(400).json({ error: `Error updating issue: ${error}` });
+        }
+      });
     })
 
     .delete(function (req, res) {
