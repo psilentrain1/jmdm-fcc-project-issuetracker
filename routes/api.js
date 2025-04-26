@@ -74,13 +74,19 @@ module.exports = function (app) {
     .put(function (req, res) {
       const project = req.params.project;
 
+      if (!req.body._id) {
+        return res.status(400).json({ error: "missing _id" });
+      }
+
       Issue.findById(req.body._id, async function (err, issue) {
         if (err) {
-          return res.status(500).json({ error: `Error finding issue: ${err}` });
+          return res.status(500).json({ error: `could not update`, _id: req.body._id });
         }
         if (!issue) {
-          return res.status(404).json({ error: "Issue not found" });
+          return res.status(404).json({ error: `could not update`, _id: req.body._id });
         }
+        if (!req.body.issue_title && !req.body.issue_text && !req.body.created_by && !req.body.assigned_to && !req.body.status_text)
+          return res.status(400).json({ error: "no update field(s) sent", _id: req.body._id });
         req.body.issue_title && (issue.issue_title = req.body.issue_title);
         req.body.issue_text && (issue.issue_text = req.body.issue_text);
         req.body.created_by && (issue.created_by = req.body.created_by);
@@ -91,7 +97,7 @@ module.exports = function (app) {
           const updatedIssue = await issue.save();
           res.status(200).json({ result: "successfully updated", _id: updatedIssue._id });
         } catch (error) {
-          res.status(400).json({ error: `Error updating issue: ${error}` });
+          res.status(400).json({ error: `could not update`, _id: req.body._id });
         }
       });
     })
