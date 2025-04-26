@@ -100,7 +100,17 @@ module.exports = function (app) {
       }
     })
 
-    .delete(function (req, res) {
+    .delete(async function (req, res) {
       const project = req.params.project;
+
+      if (!req.body._id) return res.status(400).json({ error: "missing _id" });
+
+      try {
+        const deletedIssue = await Issue.findByIdAndDelete(req.body._id);
+        if (!deletedIssue) return res.status(404).json({ error: "could not delete", _id: req.body._id });
+        res.status(200).json({ result: "successfully deleted", _id: deletedIssue._id });
+      } catch (error) {
+        res.status(400).json({ error: "could not delete", _id: req.body._id });
+      }
     });
 };

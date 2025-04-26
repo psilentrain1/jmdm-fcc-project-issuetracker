@@ -5,9 +5,9 @@ const server = require("../server");
 
 chai.use(chaiHttp);
 
+const invalidId = "680c549fbb46b100f04aec5f";
 let issueId1;
 let issueId2;
-let issueId3;
 
 suite("Functional Tests", function () {
   this.timeout(5000);
@@ -64,7 +64,6 @@ suite("Functional Tests", function () {
       .end(function (err, res) {
         assert.equal(res.status, 400);
         assert.equal(res.body.error, "required field(s) missing");
-        issueId3 = res.body._id;
         done();
       });
   });
@@ -109,7 +108,7 @@ suite("Functional Tests", function () {
         assigned_to: "Tier 2 tester",
       })
       .end(function (err, res) {
-        console.log("issueId1", issueId1), assert.equal(res.status, 200);
+        assert.equal(res.status, 200);
         assert.equal(res.body.result, "successfully updated");
         done();
       });
@@ -125,7 +124,7 @@ suite("Functional Tests", function () {
         assigned_to: "Tier 3 tester",
       })
       .end(function (err, res) {
-        console.log("issueId2", issueId2), assert.equal(res.status, 200);
+        assert.equal(res.status, 200);
         assert.equal(res.body.result, "successfully updated");
         done();
       });
@@ -150,10 +149,9 @@ suite("Functional Tests", function () {
       .request(server)
       .put("/api/issues/testproject")
       .send({
-        _id: issueId3,
+        _id: issueId2,
       })
       .end(function (err, res) {
-        console.log("issueId3", issueId3);
         assert.equal(res.status, 400);
         assert.equal(res.body.error, "no update field(s) sent");
         done();
@@ -164,18 +162,49 @@ suite("Functional Tests", function () {
       .request(server)
       .put("/api/issues/testproject")
       .send({
-        _id: "123a456bcd78e901f23gab4c",
+        _id: invalidId,
         issue_text: "Adding more details to this issue",
         status_text: "Escalated to manager",
         assigned_to: "Team manager",
       })
       .end(function (err, res) {
-        assert.equal(res.status, 500);
+        assert.equal(res.status, 404);
         assert.equal(res.body.error, "could not update");
         done();
       });
   });
-  //   test("Delete an issue: DELETE request to /api/issues/{project}", function (done) {});
-  //   test("Delete an issue with an invalid _id: DELETE request to /api/issues/{project}", function (done) {});
-  //   test("Delete an issue with missing _id: DELETE request to /api/issues/{project}", function (done) {});
+  test("Delete an issue: DELETE request to /api/issues/{project}", function (done) {
+    chai
+      .request(server)
+      .delete("/api/issues/testproject")
+      .send({ _id: issueId1 })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.body.result, "successfully deleted");
+        assert.equal(res.body._id, issueId1);
+        done();
+      });
+  });
+  test("Delete an issue with an invalid _id: DELETE request to /api/issues/{project}", function (done) {
+    chai
+      .request(server)
+      .delete("/api/issues/testproject")
+      .send({ _id: invalidId })
+      .end(function (err, res) {
+        assert.equal(res.status, 404);
+        assert.equal(res.body.error, "could not delete");
+        done();
+      });
+  });
+  test("Delete an issue with missing _id: DELETE request to /api/issues/{project}", function (done) {
+    chai
+      .request(server)
+      .delete("/api/issues/testproject")
+      .send({})
+      .end(function (err, res) {
+        assert.equal(res.status, 400);
+        assert.equal(res.body.error, "missing _id");
+        done();
+      });
+  });
 });
