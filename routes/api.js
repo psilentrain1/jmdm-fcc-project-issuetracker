@@ -18,8 +18,8 @@ const issueSchema = new mongoose.Schema({
   created_on: { type: Date, default: Date.now },
   updated_on: { type: Date, default: Date.now },
   created_by: { type: String, required: true },
-  assigned_to: String,
-  status_text: String,
+  assigned_to: { type: String, default: "" },
+  status_text: { type: String, default: "" },
   open: { type: Boolean, default: true },
   project: { type: String, required: true },
 });
@@ -43,7 +43,6 @@ module.exports = function (app) {
           res.json(issues);
         })
         .catch((error) => {
-          console.error("Error retrieving issues:", error);
           res.status(500).json({ error: "Internal server error" });
         });
     })
@@ -52,7 +51,7 @@ module.exports = function (app) {
       const project = req.params.project;
 
       if (!req.body.issue_title || !req.body.issue_text || !req.body.created_by) {
-        return res.status(400).json({ error: "required field(s) missing" });
+        return res.status(200).json({ error: "required field(s) missing" });
       }
 
       const newIssue = new Issue({
@@ -75,17 +74,18 @@ module.exports = function (app) {
       const project = req.params.project;
 
       if (!req.body._id) {
-        return res.status(400).json({ error: "missing _id" });
+        return res.json({ error: "missing _id" });
+      }
+
+      if (!req.body.issue_title && !req.body.issue_text && !req.body.created_by && !req.body.assigned_to && !req.body.status_text) {
+        return res.json({ error: "no update field(s) sent", _id: req.body._id });
       }
 
       const issue = await Issue.findById(req.body._id);
-
       if (!issue) {
-        return res.status(404).json({ error: `could not update`, _id: req.body._id });
+        return res.json({ error: `could not update`, _id: req.body._id });
       }
-      if (!req.body.issue_title && !req.body.issue_text && !req.body.created_by && !req.body.assigned_to && !req.body.status_text) {
-        return res.status(400).json({ error: "no update field(s) sent", _id: req.body._id });
-      }
+
       req.body.issue_title && (issue.issue_title = req.body.issue_title);
       req.body.issue_text && (issue.issue_text = req.body.issue_text);
       req.body.created_by && (issue.created_by = req.body.created_by);
@@ -94,20 +94,21 @@ module.exports = function (app) {
       issue.updated_on = new Date();
       try {
         const updatedIssue = await issue.save();
-        res.status(200).json({ result: "successfully updated", _id: updatedIssue._id });
+        res.json({ result: "successfully updated", _id: updatedIssue._id });
       } catch (error) {
-        res.status(400).json({ error: `could not update`, _id: req.body._id });
+        res.json({ error: `could not update`, _id: req.body._id });
       }
     })
 
     .delete(async function (req, res) {
       const project = req.params.project;
 
-      if (!req.body._id) return res.status(400).json({ error: "missing _id" });
+      if (!req.body._id) return res.status(200).json({ error: "missing _id" });
 
       try {
         const deletedIssue = await Issue.findByIdAndDelete(req.body._id);
-        if (!deletedIssue) return res.status(404).json({ error: "could not delete", _id: req.body._id });
+        if (!deletedIssue) return res.status(200).json({ error: "could not delete", _id: req.body._id });
+
         res.status(200).json({ result: "successfully deleted", _id: deletedIssue._id });
       } catch (error) {
         res.status(400).json({ error: "could not delete", _id: req.body._id });

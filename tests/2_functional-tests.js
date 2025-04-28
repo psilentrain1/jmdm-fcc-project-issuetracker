@@ -62,7 +62,7 @@ suite("Functional Tests", function () {
         project: "testproject",
       })
       .end(function (err, res) {
-        assert.equal(res.status, 400);
+        assert.equal(res.status, 200);
         assert.equal(res.body.error, "required field(s) missing");
         done();
       });
@@ -139,7 +139,7 @@ suite("Functional Tests", function () {
         assigned_to: "Tier 3 tester",
       })
       .end(function (err, res) {
-        assert.equal(res.status, 400);
+        assert.equal(res.status, 200);
         assert.equal(res.body.error, "missing _id");
         done();
       });
@@ -152,7 +152,7 @@ suite("Functional Tests", function () {
         _id: issueId2,
       })
       .end(function (err, res) {
-        assert.equal(res.status, 400);
+        assert.equal(res.status, 200);
         assert.equal(res.body.error, "no update field(s) sent");
         done();
       });
@@ -168,7 +168,7 @@ suite("Functional Tests", function () {
         assigned_to: "Team manager",
       })
       .end(function (err, res) {
-        assert.equal(res.status, 404);
+        assert.equal(res.status, 200);
         assert.equal(res.body.error, "could not update");
         done();
       });
@@ -191,7 +191,7 @@ suite("Functional Tests", function () {
       .delete("/api/issues/testproject")
       .send({ _id: invalidId })
       .end(function (err, res) {
-        assert.equal(res.status, 404);
+        assert.equal(res.status, 200);
         assert.equal(res.body.error, "could not delete");
         done();
       });
@@ -202,7 +202,7 @@ suite("Functional Tests", function () {
       .delete("/api/issues/testproject")
       .send({})
       .end(function (err, res) {
-        assert.equal(res.status, 400);
+        assert.equal(res.status, 200);
         assert.equal(res.body.error, "missing _id");
         done();
       });
